@@ -1,0 +1,28 @@
+-- deadlock
+
+CREATE TABLE t (i INT) ENGINE = InnoDB;
+
+INSERT INTO t (i) VALUES(1);
+
+-- client A
+START TRANSACTION;
+SELECT * FROM t WHERE i = 1 LOCK IN SHARE MODE;
+
+-- client B
+START TRANSACTION;
+DELETE FROM t WHERE i = 1; 
+
+-- client A
+DELETE FROM t WHERE i = 1;
+commit;
+-- commit;
+
+CREATE TABLE t1 (i INT) ENGINE = InnoDB;
+CREATE TABLE t2 (i INT) ENGINE = InnoDB;
+set autocommit=0; 
+LOCK TABLES t1 WRITE, t2 READ; 
+SELECT * FROM t1;
+SELECT * FROM t2;
+
+COMMIT; 
+UNLOCK TABLES;
